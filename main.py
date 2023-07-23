@@ -1,3 +1,4 @@
+import json
 from tkinter import *
 from tkinter import messagebox
 from random import randint, choice, shuffle
@@ -7,11 +8,14 @@ import pyperclip
 WHITE = "white"
 FONT = font = ("Arial", 10)
 
+
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
 
 def generate_password():
-    letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
-               'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
+    letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u',
+               'v',
+               'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
+               'R',
                'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
     numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
     symbols = ['!', '#', '$', '%', '&', '(', ')', '*', '+']
@@ -29,25 +33,30 @@ def generate_password():
 
     pyperclip.copy(password)
 
+
 # ---------------------------- SAVE PASSWORD ------------------------------- #
 
 def save():
+    new_data = {website_entry.get():
+                    {"email": email_entry.get(),
+                     "password": password_entry.get()}}
+
     if email_entry.get() is None or password_entry.get() is None:
         messagebox.showinfo(title="Oops!", message="Please do not leave any fields empty!")
     else:
-        is_ok = messagebox.askokcancel(title=website_entry.get(),
-                                       message=f"You have entered: \nE-mail: {email_entry.get()} "
-                                               f"\nPassword: {password_entry.get()} \nIs it ok to save?")
+        # is_ok = messagebox.askokcancel(title=website_entry.get(),
+        #                                message=f"You have entered: \nE-mail: {email_entry.get()} "
+        #                                        f"\nPassword: {password_entry.get()} \nIs it ok to save?")
 
-        if is_ok:
-            with open("data.txt", "a") as data:
-                data.write(f"{website_entry.get()} | {email_entry.get()} | {password_entry.get()}" + '\n')
+        # if is_ok:
+        with open("data.json", "w") as data:
+            json.dump(new_data, data, indent=4)
 
-            clear_entry()
+        clear_entry()
 
 
 def clear_entry():
-    entries = [website_entry, email_entry, password_entry]
+    entries = [website_entry, password_entry]
     for entry in entries:
         entry.delete(0, 'end')
 
