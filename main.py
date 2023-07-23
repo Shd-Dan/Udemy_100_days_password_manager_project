@@ -34,7 +34,7 @@ def generate_password():
     pyperclip.copy(password)
 
 
-# ---------------------------- SAVE PASSWORD ------------------------------- #
+# ---------------------------- SAVE AND FIND PASSWORD ------------------------------- #
 
 def save():
     new_data = {website_entry.get():
@@ -49,16 +49,46 @@ def save():
         #                                        f"\nPassword: {password_entry.get()} \nIs it ok to save?")
 
         # if is_ok:
-        with open("data.json", "w") as data:
-            json.dump(new_data, data, indent=4)
+        try:
+            with open("data.json", "r") as data_file:
+                # read the data
+                data = json.load(data_file)
+        except FileNotFoundError:
+            with open("data.json", "w") as data_file:
+                json.dump(new_data, data_file, indent=4)
+        else:
+            # updating new info
+            data.update(new_data)
 
-        clear_entry()
+            with open("data.json", "w") as data_file:
+                # saving updated data
+                json.dump(data, data_file, indent=4)
+        finally:
+            clear_entry()
 
 
 def clear_entry():
     entries = [website_entry, password_entry]
     for entry in entries:
         entry.delete(0, 'end')
+
+
+def find_password():
+    website = website_entry.get()
+    try:
+        with open('data.json', 'r') as data_file:
+            data = json.load(data_file)
+    except FileNotFoundError:
+        messagebox.showinfo(title="No File!", message="No Data File Found")
+    else:
+        # Alternative way is to use if else statements
+        try:
+            messagebox.showinfo(title=f"Your password for {website}",
+                                message=f"E-mail: {data[website]['email']}\n"
+                                        f"Password: {data[website]['password']}")
+
+        except KeyError:
+            messagebox.showinfo(title="Not Found!", message="No details for the website exists")
 
 
 # ---------------------------- UI SETUP ------------------------------- #
@@ -85,7 +115,7 @@ label_password.grid(column=0, row=3)
 website_entry = Entry(width=57)
 website_entry.grid(column=1, row=1, columnspan=2, sticky=W)
 website_entry.focus()
-email_entry = Entry(width=57)
+email_entry = Entry(width=30)
 email_entry.grid(column=1, row=2, columnspan=2, sticky=W)
 email_entry.insert(0, "big_bob_roof@mail.ru")
 password_entry = Entry(width=30)
@@ -96,5 +126,7 @@ generate_password_button = Button(text="Generate Password", bg=WHITE, width=19, 
 generate_password_button.grid(row=3, column=2)
 add_button = Button(text="Add", bg=WHITE, width=48, command=save)
 add_button.grid(column=1, row=4, columnspan=2)
+search_button = Button(text="Search", bg=WHITE, width=19, command=find_password)
+search_button.grid(column=2, row=2)
 
 window.mainloop()
